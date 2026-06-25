@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   BriefcaseBusiness,
   Building2,
-  CalendarCheck,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -25,7 +24,7 @@ import {
   UsersRound,
   X
 } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 const phoneDisplay = "099941 73555";
 const phoneNumber = "+919994173555";
@@ -44,25 +43,25 @@ const navLinks = [
 
 const gallery = [
   {
-    src: "/venue/yr-mahal-exterior-wide.png",
+    src: "/venue/yr-mahal-exterior-wide-enhanced.webp",
     alt: "Y.R. Mahal illuminated exterior at night",
     title: "Illuminated facade",
     className: "h-[340px] md:h-[460px]"
   },
   {
-    src: "/venue/yr-mahal-stage.png",
+    src: "/venue/yr-mahal-stage-enhanced.webp",
     alt: "Decorated wedding stage inside Y.R. Mahal",
     title: "Wedding stage decor",
     className: "h-[260px] md:h-[340px]"
   },
   {
-    src: "/venue/yr-mahal-hall.png",
+    src: "/venue/yr-mahal-hall-enhanced.webp",
     alt: "Event hall seating arrangement at Y.R. Mahal",
     title: "Spacious seating",
     className: "h-[360px] md:h-[520px]"
   },
   {
-    src: "/venue/yr-mahal-exterior-front.png",
+    src: "/venue/yr-mahal-exterior-front-enhanced.webp",
     alt: "Front entrance and driveway at Y.R. Mahal",
     title: "Grand arrival",
     className: "h-[300px] md:h-[420px]"
@@ -103,12 +102,12 @@ const features = [
 ];
 
 const events = [
-  { title: "Weddings", icon: Church, image: "/venue/yr-mahal-stage.png" },
-  { title: "Receptions", icon: Sparkles, image: "/venue/yr-mahal-exterior-wide.png" },
-  { title: "Engagement Ceremonies", icon: Gem, image: "/venue/yr-mahal-stage.png" },
-  { title: "Family Functions", icon: Home, image: "/venue/yr-mahal-hall.png" },
-  { title: "Corporate Events", icon: BriefcaseBusiness, image: "/venue/yr-mahal-hall.png" },
-  { title: "Community Gatherings", icon: Building2, image: "/venue/yr-mahal-exterior-front.png" }
+  { title: "Weddings", icon: Church, image: "/venue/yr-mahal-stage-enhanced.webp" },
+  { title: "Receptions", icon: Sparkles, image: "/venue/yr-mahal-exterior-wide-enhanced.webp" },
+  { title: "Engagement Ceremonies", icon: Gem, image: "/venue/yr-mahal-stage-enhanced.webp" },
+  { title: "Family Functions", icon: Home, image: "/venue/yr-mahal-hall-enhanced.webp" },
+  { title: "Corporate Events", icon: BriefcaseBusiness, image: "/venue/yr-mahal-hall-enhanced.webp" },
+  { title: "Community Gatherings", icon: Building2, image: "/venue/yr-mahal-exterior-front-enhanced.webp" }
 ];
 
 const testimonials = [
@@ -143,12 +142,41 @@ export default function HomePage() {
   const [formValues, setFormValues] = useState(formInitial);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const mapEmbed = useMemo(
     () =>
       "https://www.google.com/maps?q=Y.R.%20Mahal%20Water%20Tank%20Road%20Nagercoil%20Tamil%20Nadu%20629001&output=embed",
     []
   );
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute("data-visible", "true");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.16 }
+    );
+
+    document.querySelectorAll("[data-reveal]").forEach((element) => observer.observe(element));
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", updateProgress);
+    };
+  }, []);
 
   function updateField(field: keyof FormValues, value: string) {
     setFormValues((current) => ({ ...current, [field]: value }));
@@ -204,6 +232,12 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-porcelain text-ink">
+      <div className="fixed left-0 top-0 z-[60] h-1 w-full">
+        <div
+          className="h-full bg-gold-sheen transition-[width] duration-150 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -225,10 +259,10 @@ export default function HomePage() {
         }}
       />
 
-      <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
+      <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-5 md:px-8">
         <nav
           aria-label="Primary navigation"
-          className="glass mx-auto flex max-w-7xl items-center justify-between rounded-full px-4 py-3 shadow-luxury md:px-6"
+          className="glass premium-ring mx-auto flex max-w-7xl items-center justify-between rounded-full px-4 py-3 md:px-6"
         >
           <a href="#home" className="luxury-focus flex items-center gap-3 rounded-full">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-gold-sheen font-display text-lg font-bold text-white">
@@ -271,7 +305,7 @@ export default function HomePage() {
         </nav>
 
         {menuOpen && (
-          <div className="glass mx-auto mt-3 grid max-w-7xl gap-2 rounded-3xl p-3 shadow-luxury lg:hidden">
+          <div className="glass premium-ring mx-auto mt-3 grid max-w-7xl gap-2 rounded-3xl p-3 lg:hidden">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -288,14 +322,14 @@ export default function HomePage() {
 
       <section id="home" className="relative flex min-h-screen items-end overflow-hidden bg-charcoal">
         <Image
-          src="/venue/yr-mahal-exterior-wide.png"
+          src="/venue/yr-mahal-exterior-wide-enhanced.webp"
           alt="Y.R. Mahal luxury wedding venue exterior at night"
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/42 via-charcoal/34 to-charcoal/88" />
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/34 via-charcoal/30 to-charcoal/90" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(223,194,122,0.22),transparent_32%)]" />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-14 pt-36 md:px-8 md:pb-20">
@@ -309,7 +343,7 @@ export default function HomePage() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/82 md:text-xl">
               A Premium Wedding & Event Venue in Nagercoil
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a
                 href="#gallery"
                 className="luxury-focus inline-flex items-center justify-center gap-2 rounded-full bg-gold-sheen px-7 py-4 text-sm font-bold text-charcoal shadow-luxury transition hover:translate-y-[-1px]"
@@ -329,7 +363,7 @@ export default function HomePage() {
 
       <section id="about" className="bg-porcelain px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-          <div>
+          <div data-reveal className="scroll-reveal">
             <p className="section-kicker text-xs font-bold text-deepGold">About Y.R. Mahal</p>
             <h2 className="mt-4 font-display text-4xl font-bold leading-tight text-charcoal md:text-6xl">
               A refined setting for meaningful celebrations.
@@ -355,10 +389,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="relative h-[420px] overflow-hidden rounded-[2rem] shadow-luxury sm:mt-16">
+          <div data-reveal className="scroll-reveal grid gap-4 sm:grid-cols-2">
+            <div className="premium-ring relative h-[420px] overflow-hidden rounded-[2rem] sm:mt-16">
               <Image
-                src="/venue/yr-mahal-hall.png"
+                src="/venue/yr-mahal-hall-enhanced.webp"
                 alt="Y.R. Mahal hall seating and event aisle"
                 fill
                 sizes="(min-width: 1024px) 32vw, 90vw"
@@ -366,16 +400,16 @@ export default function HomePage() {
               />
             </div>
             <div className="grid gap-4">
-              <div className="rounded-[2rem] bg-charcoal p-8 text-white shadow-luxury">
+              <div className="premium-ring rounded-[2rem] bg-charcoal p-8 text-white">
                 <Clock3 className="mb-8 text-softGold" size={30} />
                 <h3 className="font-display text-3xl font-bold">Designed for unhurried hospitality.</h3>
                 <p className="mt-4 text-sm leading-7 text-white/70">
                   A calm, polished experience for arrivals, ceremonies, dining, and guest movement.
                 </p>
               </div>
-              <div className="relative h-[250px] overflow-hidden rounded-[2rem] shadow-luxury">
+              <div className="premium-ring relative h-[250px] overflow-hidden rounded-[2rem]">
                 <Image
-                  src="/venue/yr-mahal-stage.png"
+                  src="/venue/yr-mahal-stage-enhanced.webp"
                   alt="Decorated wedding stage at Y.R. Mahal"
                   fill
                   sizes="(min-width: 1024px) 32vw, 90vw"
@@ -389,7 +423,7 @@ export default function HomePage() {
 
       <section className="bg-cream px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
+          <div data-reveal className="scroll-reveal max-w-2xl">
             <p className="section-kicker text-xs font-bold text-deepGold">Why choose Y.R. Mahal</p>
             <h2 className="mt-4 font-display text-4xl font-bold leading-tight text-charcoal md:text-6xl">
               Every important detail, presented with care.
@@ -399,7 +433,8 @@ export default function HomePage() {
             {features.map((feature) => (
               <article
                 key={feature.title}
-                className="group rounded-[1.75rem] border border-deepGold/10 bg-porcelain p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-luxury"
+                data-reveal
+                className="scroll-reveal premium-ring group rounded-[1.75rem] border border-deepGold/10 bg-porcelain p-7 transition hover:-translate-y-1 hover:shadow-luxury"
               >
                 <div className="mb-8 grid h-14 w-14 place-items-center rounded-2xl bg-gold-sheen text-charcoal">
                   <feature.icon size={25} />
@@ -415,7 +450,7 @@ export default function HomePage() {
       <section id="gallery" className="bg-charcoal px-5 py-20 text-white md:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div className="max-w-2xl">
+            <div data-reveal className="scroll-reveal max-w-2xl">
               <p className="section-kicker text-xs font-bold text-softGold">Venue gallery</p>
               <h2 className="mt-4 font-display text-4xl font-bold leading-tight md:text-6xl">
                 Spaces that photograph beautifully.
@@ -435,7 +470,8 @@ export default function HomePage() {
                 key={item.src}
                 type="button"
                 onClick={() => setActiveImage(index)}
-                className={`masonry-item group luxury-focus relative w-full overflow-hidden rounded-[1.75rem] ${item.className}`}
+                data-reveal
+                className={`masonry-item scroll-reveal group luxury-focus relative w-full overflow-hidden rounded-[1.75rem] ${item.className}`}
                 aria-label={`Open gallery image: ${item.title}`}
               >
                 <Image
@@ -460,7 +496,7 @@ export default function HomePage() {
 
       <section id="events" className="bg-porcelain px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
+          <div data-reveal className="scroll-reveal max-w-2xl">
             <p className="section-kicker text-xs font-bold text-deepGold">Events we host</p>
             <h2 className="mt-4 font-display text-4xl font-bold leading-tight text-charcoal md:text-6xl">
               Built for ceremonies, celebrations, and gatherings.
@@ -470,7 +506,8 @@ export default function HomePage() {
             {events.map((eventItem) => (
               <article
                 key={eventItem.title}
-                className="group overflow-hidden rounded-[1.75rem] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-luxury"
+                data-reveal
+                className="scroll-reveal premium-ring group overflow-hidden rounded-[1.75rem] bg-white transition hover:-translate-y-1 hover:shadow-luxury"
               >
                 <div className="relative h-56">
                   <Image
@@ -500,7 +537,7 @@ export default function HomePage() {
 
       <section id="location" className="bg-cream px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
-          <div className="rounded-[2rem] bg-charcoal p-8 text-white shadow-luxury md:p-10">
+          <div data-reveal className="scroll-reveal premium-ring rounded-[2rem] bg-charcoal p-8 text-white md:p-10">
             <p className="section-kicker text-xs font-bold text-softGold">Location</p>
             <h2 className="mt-4 font-display text-4xl font-bold leading-tight md:text-6xl">
               Easy to find in Nagercoil.
@@ -525,7 +562,7 @@ export default function HomePage() {
               Get Directions <MapPin size={18} />
             </a>
           </div>
-          <div className="min-h-[420px] overflow-hidden rounded-[2rem] bg-white shadow-luxury">
+          <div data-reveal className="scroll-reveal premium-ring min-h-[420px] overflow-hidden rounded-[2rem] bg-white">
             <iframe
               title="Google Maps placeholder for Y.R. Mahal"
               src={mapEmbed}
@@ -540,7 +577,7 @@ export default function HomePage() {
       <section id="contact" className="bg-porcelain px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
+            <div data-reveal className="scroll-reveal">
               <p className="section-kicker text-xs font-bold text-deepGold">Contact</p>
               <h2 className="mt-4 font-display text-4xl font-bold leading-tight text-charcoal md:text-6xl">
                 Begin your event enquiry.
@@ -549,7 +586,7 @@ export default function HomePage() {
                 Speak with Y.R. Mahal for wedding, reception, engagement, family function, corporate
                 event, and community gathering availability.
               </p>
-              <div className="mt-8 rounded-[1.75rem] border border-deepGold/10 bg-white p-6 shadow-sm">
+              <div className="premium-ring mt-8 rounded-[1.75rem] border border-deepGold/10 bg-white p-6">
                 <p className="text-sm font-bold uppercase text-deepGold">Phone</p>
                 <a
                   href={`tel:${phoneNumber}`}
@@ -588,7 +625,8 @@ export default function HomePage() {
               id="enquiry"
               onSubmit={submitForm}
               noValidate
-              className="rounded-[2rem] bg-charcoal p-6 text-white shadow-luxury md:p-10"
+              data-reveal
+              className="scroll-reveal premium-ring rounded-[2rem] bg-charcoal p-6 text-white md:p-10"
             >
               <div className="mb-8">
                 <p className="section-kicker text-xs font-bold text-softGold">Enquiry form</p>
@@ -671,7 +709,7 @@ export default function HomePage() {
 
       <section className="bg-cream px-5 py-20 md:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
+          <div data-reveal className="scroll-reveal max-w-2xl">
             <p className="section-kicker text-xs font-bold text-deepGold">Testimonials</p>
             <h2 className="mt-4 font-display text-4xl font-bold leading-tight text-charcoal md:text-6xl">
               A polished review section ready for verified feedback.
@@ -679,7 +717,7 @@ export default function HomePage() {
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {testimonials.map((item) => (
-              <article key={item.name} className="rounded-[1.75rem] bg-white p-7 shadow-sm">
+              <article key={item.name} data-reveal className="scroll-reveal premium-ring rounded-[1.75rem] bg-white p-7">
                 <Quote className="text-royalGold" size={30} />
                 <p className="mt-8 text-sm leading-7 text-ink/70">{item.note}</p>
                 <p className="mt-8 font-display text-2xl font-bold text-charcoal">{item.name}</p>
@@ -739,7 +777,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-sm text-white/48">
-          © 2026 Y.R. Mahal. Website concept for business demonstration.
+          Copyright 2026 Y.R. Mahal. Website concept for business demonstration.
         </div>
       </footer>
 
